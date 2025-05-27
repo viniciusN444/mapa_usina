@@ -4,12 +4,28 @@ let allFeatures = [];
 let userLocation = null;
 let routingControl = null;
 
+let streetLayer, satelliteLayer;
+
 function initMap() {
   map = L.map("map");
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "© OpenStreetMap",
-  }).addTo(map);
+  // Camadas de mapa base
+  streetLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap"
+  });
+
+  satelliteLayer = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+    attribution: "© Esri, Maxar, Earthstar Geographics"
+  });
+
+  satelliteLayer.addTo(map); // Modo satélite como padrão
+
+  // Adicionar controle de camadas (alternância)
+  L.control.layers(
+    { "Mapa": streetLayer, "Satélite": satelliteLayer },
+    null,
+    { collapsed: false }
+  ).addTo(map);
 
   // Obter localização do usuário
   map.locate({ setView: true, maxZoom: 15 });
@@ -81,7 +97,7 @@ function createRoute(destination) {
     lineOptions: {
       styles: [{ color: "blue", weight: 5 }],
     },
-    createMarker: () => null, // Remove marcadores padrão
+    createMarker: () => null,
     addWaypoints: false,
     draggableWaypoints: false,
     routeWhileDragging: false,
